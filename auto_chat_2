@@ -1,0 +1,249 @@
+import 'package:flutter/cupertino.dart';
+import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+import 'package:travel_ui/const/constants.dart';
+
+class ChatPage extends StatefulWidget {
+  ChatPage({super.key});
+
+  @override
+  _ChatPageState createState() => _ChatPageState();
+}
+
+class _ChatPageState extends State<ChatPage> {
+  final Constants myconstants = Constants();
+  TextEditingController myMessage = TextEditingController();
+
+  // List to hold chat messages and message source (true for user, false for auto message)
+  List<Map<String, dynamic>> messages = [];
+
+  // Function to reply based on user's message
+  void _replyToMessage(String userMessage) {
+    String reply;
+
+    // Use switch-case to match user input with predefined responses
+    switch (userMessage.toLowerCase()) {
+      case "hello":
+        reply = "Hi there! How can I help you today?";
+        break;
+      case "how are you?":
+        reply = "I'm doing well, thank you! How about you?";
+        break;
+      case "what is your name?":
+        reply = "I'm Mind Reader - Olivia, your assistant!";
+        break;
+      case "help":
+        reply = "Sure, let me know what you need help with!";
+        break;
+      default:
+        reply = "Sorry, I didn't understand that. Can you please rephrase?";
+        break;
+    }
+
+    // Add automatic reply to the chat
+    setState(() {
+      messages.add({
+        "text": reply,
+        "isUser": false,
+      });
+    });
+  }
+
+  // Method to handle sending the user message
+  void _sendMessage() {
+    if (myMessage.text.isNotEmpty) {
+      String userMessage = myMessage.text;
+
+      setState(() {
+        // Add user's message to the chat list, marked as user
+        messages.add({
+          "text": userMessage,
+          "isUser": true,
+        });
+        myMessage.clear(); // Clear input field
+      });
+
+      // Simulate automatic response based on user input
+      Future.delayed(Duration(milliseconds: 500), () {
+        _replyToMessage(userMessage);
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: Color(0xffF6F6F6),
+      body: Center(
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            SizedBox(height: 40),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: <Widget>[
+                  Row(
+                    children: [
+                      Icon(Icons.beach_access, size: 20),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 5),
+                        child: Text(
+                          'Chat',
+                          style: TextStyle(
+                            fontFamily: myconstants.PoppinsM,
+                            fontSize: 22,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                  Container(
+                    padding: EdgeInsets.all(5),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(100),
+                    ),
+                    child: CircleAvatar(
+                      radius: 19,
+                      backgroundImage: AssetImage(
+                        "assets/image/user.png",
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            SizedBox(height: 21),
+            Container(
+              margin: EdgeInsets.symmetric(horizontal: 15, vertical: 0),
+              child: Row(
+                children: [
+                  CircleAvatar(
+                    backgroundImage: AssetImage(
+                      "assets/image/chat_image.jpg",
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(left: 10),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Mind Reader - Olivia",
+                          style: TextStyle(
+                            fontFamily: myconstants.PoppinsM,
+                            fontSize: 17,
+                          ),
+                        ),
+                        Text(
+                          "Online",
+                          style: TextStyle(
+                            fontFamily: myconstants.PoppinsR,
+                            fontSize: 14,
+                            color: Color(0xffEE684A),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Spacer(),
+                  Icon(CupertinoIcons.ellipsis_vertical),
+                ],
+              ),
+            ),
+
+            // Display the list of messages
+            Expanded(
+              child: ListView.builder(
+                itemCount: messages.length,
+                itemBuilder: (context, index) {
+                  bool isUser = messages[index]['isUser']; // Determine if message is from user
+
+                  return Padding(
+                    padding: const EdgeInsets.all(8.0),
+                    child: Align(
+                      alignment: isUser
+                          ? Alignment.centerRight // Align user message to right
+                          : Alignment.centerLeft, // Align system message to left
+                      child: Container(
+                        padding: EdgeInsets.all(10),
+                        decoration: BoxDecoration(
+                          color: isUser
+                              ? Colors.red // User message background color red
+                              : Colors.white, // System message background color white
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                        child: Text(
+                          messages[index]['text'],
+                          style: TextStyle(
+                            fontFamily: myconstants.PoppinsR,
+                            fontSize: 16,
+                            color: isUser
+                                ? Colors.white // User message text color white
+                                : Colors.black, // System message text color black
+                          ),
+                        ),
+                      ),
+                    ),
+                  );
+                },
+              ),
+            ),
+
+            // Message input field and send button
+            Container(
+              margin: EdgeInsets.symmetric(
+                horizontal: 10,
+                vertical: 5,
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      height: 50,
+                      child: TextFormField(
+                        controller: myMessage,
+                        decoration: InputDecoration(
+                          contentPadding: EdgeInsets.symmetric(horizontal: 20),
+                          hintText: "Type message. . .",
+                          hintStyle: TextStyle(
+                            letterSpacing: .8,
+                            fontFamily: myconstants.PoppinsR,
+                          ),
+                          filled: true,
+                          fillColor: Colors.grey.withOpacity(.2),
+                          border: OutlineInputBorder(
+                            borderSide: BorderSide.none,
+                            borderRadius: BorderRadius.circular(100),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  GestureDetector(
+                    onTap: _sendMessage, // Handle the send button click
+                    child: Container(
+                      margin: EdgeInsets.only(left: 7),
+                      alignment: Alignment.center,
+                      height: 50,
+                      width: 50,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(100),
+                        color: Colors.grey.withOpacity(.2),
+                      ),
+                      child: Icon(
+                        Icons.send_rounded,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
